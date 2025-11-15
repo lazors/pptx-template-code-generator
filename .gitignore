@@ -1,0 +1,35 @@
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Development environment
+.env
+.env.*
+
+# Vite cache
+.vite/
+.cache/
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.suo
+.ntvs*
+.njsproj
+.sln
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage
+coverage/
+
+# Note: pnpm-lock.yaml should be committed for reproducible installs
+# pnpm-lock.yaml
