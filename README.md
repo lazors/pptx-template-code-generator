@@ -5,7 +5,31 @@
 
   ## Running the code
 
-  Run `npm i` to install the dependencies.
+  Install dependencies with pnpm (recommended):
 
-  Run `npm run dev` to start the development server.
+  ```
+  corepack enable             # enable Corepack (Node 16+)
+  corepack prepare pnpm@8.8.0 --activate
+  pnpm install
+  ```
+
+  Or, if you prefer a global install:
+
+  ```
+  npm i -g pnpm
+  pnpm install
+  If you previously used npm and have a `package-lock.json`, you can import it:
+
+  ```
+  pnpm import
+  ```
+
+  This will create a `pnpm-lock.yaml` for reproducible installs.
+  ```
+
+  Run the development server with pnpm:
+
+  ```
+  pnpm run dev
+  ```
   

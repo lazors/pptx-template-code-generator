@@ -1,6 +1,6 @@
 
   {
-      "name": "Split View Slide Creator",
+    "name": "Split View Slide Creator",
       "version": "0.1.0",
       "private": true,
       "dependencies": {
@@ -52,7 +52,8 @@
           "@vitejs/plugin-react-swc": "^3.10.2",
           "vite": "6.3.5"
       },
-      "scripts": {
+    "packageManager": "pnpm@8.8.0",
+    "scripts": {
           "dev": "vite",
           "build": "vite build"
       }
