@@ -5,6 +5,8 @@ import { Copy, Check } from 'lucide-react';
 import { SlideData } from '../App';
 import { ScrollArea } from './ui/scroll-area';
 
+const escapeForDoubleQuotes = (value: string) => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+
 interface CodePreviewProps {
   slideData: SlideData;
 }
@@ -14,7 +16,7 @@ export function CodePreview({ slideData }: CodePreviewProps) {
 
   const generatePptxGenJSCode = () => {
     const contentItems = slideData.content
-      .map(item => `      { text: "${item.replace(/"/g, '\\"')}", options: { bullet: true, color: "${slideData.contentColor}" } }`)
+      .map(item => `      { text: "${escapeForDoubleQuotes(item)}", options: { bullet: true, color: "${slideData.contentColor}" } }`)
       .join(',\n');
 
     return `import pptxgen from "pptxgenjs";
@@ -29,7 +31,7 @@ const slide = pptx.addSlide();
 slide.background = { color: "${slideData.backgroundColor}" };
 
 // Add title
-slide.addText("${slideData.title.replace(/"/g, '\\"')}", {
+slide.addText("${escapeForDoubleQuotes(slideData.title)}", {
   x: 0.5,
   y: 0.5,
   w: 9,
@@ -41,7 +43,7 @@ slide.addText("${slideData.title.replace(/"/g, '\\"')}", {
 });
 
 // Add subtitle
-slide.addText("${slideData.subtitle.replace(/"/g, '\\"')}", {
+slide.addText("${escapeForDoubleQuotes(slideData.subtitle)}", {
   x: 0.5,
   y: 1.5,
   w: 9,
@@ -68,13 +70,6 @@ pptx.writeFile({ fileName: "presentation.pptx" });`;
   };
 
   const generateReactCode = () => {
-    const contentItems = slideData.content
-      .map(item => `        <li className="flex items-start gap-2">
-          <span>•</span>
-          <span>${item.replace(/</g, '<').replace(/>/g, '>')}</span>
-        </li>`)
-      .join('\n');
-
     return `import React from 'react';
 
 interface SlideProps {
@@ -121,8 +116,8 @@ export function Slide({
 export default function App() {
   return (
     <Slide
-      title="${slideData.title.replace(/"/g, '\\"')}"
-      subtitle="${slideData.subtitle.replace(/"/g, '\\"')}"
+      title="${escapeForDoubleQuotes(slideData.title)}"
+      subtitle="${escapeForDoubleQuotes(slideData.subtitle)}"
       content={${JSON.stringify(slideData.content, null, 8)}}
       backgroundColor="${slideData.backgroundColor}"
       titleColor="${slideData.titleColor}"
