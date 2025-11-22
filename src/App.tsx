@@ -3,6 +3,16 @@ import { SlideEditor } from './components/SlideEditor';
 import { CodePreview } from './components/CodePreview';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from './components/ui/resizable';
 
+export interface Shape {
+  id: string;
+  type: 'rect' | 'ellipse';
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  color: string;
+}
+
 export interface SlideData {
   title: string;
   subtitle: string;
@@ -10,6 +20,7 @@ export interface SlideData {
   backgroundColor: string;
   titleColor: string;
   contentColor: string;
+  shapes: Shape[];
 }
 
 export default function App() {
@@ -23,7 +34,8 @@ export default function App() {
     ],
     backgroundColor: '#ffffff',
     titleColor: '#1a1a1a',
-    contentColor: '#4a4a4a'
+    contentColor: '#4a4a4a',
+    shapes: []
   });
 
   return (
