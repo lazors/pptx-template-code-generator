@@ -19,6 +19,17 @@ export function CodePreview({ slideData }: CodePreviewProps) {
       .map(item => `      { text: "${escapeForDoubleQuotes(item)}", options: { bullet: true, color: "${slideData.contentColor}" } }`)
       .join(',\n');
 
+    const shapeItems = slideData.shapes
+      .map(shape => `// Add ${shape.type}
+slide.addShape(pptx.ShapeType.${shape.type}, {
+  x: ${shape.x},
+  y: ${shape.y},
+  w: ${shape.w},
+  h: ${shape.h},
+  fill: { color: "${shape.color}" }
+});`)
+      .join('\n\n');
+
     return `import pptxgen from "pptxgenjs";
 
 // Create a new presentation
@@ -29,6 +40,9 @@ const slide = pptx.addSlide();
 
 // Set slide background
 slide.background = { color: "${slideData.backgroundColor}" };
+
+// Add shapes
+${shapeItems}
 
 // Add title
 slide.addText("${escapeForDoubleQuotes(slideData.title)}", {
@@ -72,6 +86,16 @@ pptx.writeFile({ fileName: "presentation.pptx" });`;
   const generateReactCode = () => {
     return `import React from 'react';
 
+interface Shape {
+  id: string;
+  type: 'rect' | 'ellipse';
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  color: string;
+}
+
 interface SlideProps {
   title: string;
   subtitle: string;
@@ -79,6 +103,7 @@ interface SlideProps {
   backgroundColor: string;
   titleColor: string;
   contentColor: string;
+  shapes: Shape[];
 }
 
 export function Slide({ 
@@ -87,27 +112,47 @@ export function Slide({
   content, 
   backgroundColor, 
   titleColor, 
-  contentColor 
+  contentColor,
+  shapes
 }: SlideProps) {
   return (
     <div 
-      className="w-full aspect-[16/9] rounded-lg shadow-lg p-8 flex flex-col justify-center"
+      className="w-full aspect-[16/9] rounded-lg shadow-lg p-8 flex flex-col justify-center relative overflow-hidden"
       style={{ backgroundColor }}
     >
-      <h1 className="mb-2 text-center" style={{ color: titleColor }}>
-        {title}
-      </h1>
-      <p className="text-center mb-8 opacity-80" style={{ color: titleColor }}>
-        {subtitle}
-      </p>
-      <ul className="space-y-3 max-w-2xl mx-auto" style={{ color: contentColor }}>
-        {content.map((item, index) => (
-          <li key={index} className="flex items-start gap-2">
-            <span>•</span>
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
+      {/* Shapes Layer */}
+      {shapes.map(shape => (
+        <div
+          key={shape.id}
+          style={{
+            position: 'absolute',
+            left: \`\${(shape.x / 10) * 100}%\`,
+            top: \`\${(shape.y / 5.625) * 100}%\`,
+            width: \`\${(shape.w / 10) * 100}%\`,
+            height: \`\${(shape.h / 5.625) * 100}%\`,
+            backgroundColor: shape.color,
+            borderRadius: shape.type === 'ellipse' ? '50%' : '0'
+          }}
+        />
+      ))}
+
+      {/* Content Layer */}
+      <div className="relative z-10">
+        <h1 className="mb-2 text-center" style={{ color: titleColor }}>
+          {title}
+        </h1>
+        <p className="text-center mb-8 opacity-80" style={{ color: titleColor }}>
+          {subtitle}
+        </p>
+        <ul className="space-y-3 max-w-2xl mx-auto" style={{ color: contentColor }}>
+          {content.map((item, index) => (
+            <li key={index} className="flex items-start gap-2">
+              <span>•</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
@@ -122,6 +167,7 @@ export default function App() {
       backgroundColor="${slideData.backgroundColor}"
       titleColor="${slideData.titleColor}"
       contentColor="${slideData.contentColor}"
+      shapes={${JSON.stringify(slideData.shapes, null, 6)}}
     />
   );
 }`;
@@ -129,6 +175,16 @@ export default function App() {
 
   const generateTypeScriptInterface = () => {
     return `// TypeScript Interface
+export interface Shape {
+  id: string;
+  type: 'rect' | 'ellipse';
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  color: string;
+}
+
 export interface SlideData {
   title: string;
   subtitle: string;
@@ -136,6 +192,7 @@ export interface SlideData {
   backgroundColor: string;
   titleColor: string;
   contentColor: string;
+  shapes: Shape[];
 }
 
 // Current Slide Data
