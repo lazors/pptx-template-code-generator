@@ -83,6 +83,75 @@ ${contentItems}
 pptx.writeFile({ fileName: "presentation.pptx" });`;
   };
 
+  const generatePptxGenJSTsCode = () => {
+    const contentItems = slideData.content
+      .map(item => `      { text: "${escapeForDoubleQuotes(item)}", options: { bullet: true, color: "${slideData.contentColor}" } }`)
+      .join(',\n');
+
+    const shapeItems = slideData.shapes
+      .map(shape => `// Add ${shape.type}
+slide.addShape(pptx.ShapeType.${shape.type}, {
+  x: ${shape.x},
+  y: ${shape.y},
+  w: ${shape.w},
+  h: ${shape.h},
+  fill: { color: "${shape.color}" }
+});`)
+      .join('\n\n');
+
+    return `import pptxgen from "pptxgenjs";
+
+// Create a new presentation
+const pptx = new pptxgen();
+
+// Add a slide
+const slide = pptx.addSlide();
+
+// Set slide background
+slide.background = { color: "${slideData.backgroundColor}" };
+
+// Add shapes
+${shapeItems}
+
+// Add title
+slide.addText("${escapeForDoubleQuotes(slideData.title)}", {
+  x: 0.5,
+  y: 0.5,
+  w: 9,
+  h: 1,
+  fontSize: 44,
+  color: "${slideData.titleColor}",
+  bold: true,
+  align: "center"
+});
+
+// Add subtitle
+slide.addText("${escapeForDoubleQuotes(slideData.subtitle)}", {
+  x: 0.5,
+  y: 1.5,
+  w: 9,
+  h: 0.5,
+  fontSize: 20,
+  color: "${slideData.titleColor}",
+  align: "center"
+});
+
+// Add bullet points
+slide.addText([
+${contentItems}
+], {
+  x: 1,
+  y: 2.5,
+  w: 8,
+  h: 3,
+  fontSize: 18,
+  color: "${slideData.contentColor}"
+});
+
+// Save the presentation
+pptx.writeFile({ fileName: "presentation.pptx" });`;
+  };
+
   const generateReactCode = () => {
     return `import React from 'react';
 
@@ -210,6 +279,7 @@ export const slideData: SlideData = ${JSON.stringify(slideData, null, 2)};`;
   };
 
   const pptxCode = generatePptxGenJSCode();
+  const pptxTsCode = generatePptxGenJSTsCode();
   const reactCode = generateReactCode();
   const tsInterface = generateTypeScriptInterface();
 
@@ -221,7 +291,8 @@ export const slideData: SlideData = ${JSON.stringify(slideData, null, 2)};`;
 
       <Tabs defaultValue="pptxgen" className="flex-1 flex flex-col">
         <TabsList className="mx-6 mt-4 w-fit bg-gray-800">
-          <TabsTrigger value="pptxgen">PptxGenJS</TabsTrigger>
+          <TabsTrigger value="pptxgen">PptxGenJS (JS)</TabsTrigger>
+          <TabsTrigger value="pptxgen-ts">PptxGenJS (TS)</TabsTrigger>
           <TabsTrigger value="react">React Component</TabsTrigger>
           <TabsTrigger value="typescript">TypeScript Data</TabsTrigger>
         </TabsList>
@@ -244,6 +315,28 @@ export const slideData: SlideData = ${JSON.stringify(slideData, null, 2)};`;
               <ScrollArea className="flex-1">
                 <pre className="p-6 text-sm text-gray-100 font-mono">
                   <code>{pptxCode}</code>
+                </pre>
+              </ScrollArea>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="pptxgen-ts" className="h-full m-0 p-0">
+            <div className="absolute inset-0 flex flex-col">
+              <div className="flex justify-between items-center px-6 py-2 bg-gray-800">
+                <span className="text-gray-400 text-sm">TypeScript (PptxGenJS)</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => copyToClipboard(pptxTsCode)}
+                  className="text-gray-300 hover:text-white"
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  <span className="ml-2">{copied ? 'Copied!' : 'Copy'}</span>
+                </Button>
+              </div>
+              <ScrollArea className="flex-1">
+                <pre className="p-6 text-sm text-gray-100 font-mono">
+                  <code>{pptxTsCode}</code>
                 </pre>
               </ScrollArea>
             </div>
